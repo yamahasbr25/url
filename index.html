@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mengarahkan...</title>
+    <script>
+        const listUrl = "https://seribudollarperhari.github.io/banner/link.txt";
+
+        async function randomRedirect() {
+            try {
+                // Mengambil list txt dengan parameter waktu untuk mencegah cache
+                const response = await fetch(listUrl + "?t=" + new Date().getTime());
+                
+                if (!response.ok) {
+                    throw new Error("Gagal terhubung ke sumber link");
+                }
+                
+                const text = await response.text();
+                
+                const links = text.split('\n')
+                                  .map(link => link.trim())
+                                  .filter(link => link !== '');
+
+                if (links.length > 0) {
+                    // Pilih link acak
+                    const randomIndex = Math.floor(Math.random() * links.length);
+                    let targetUrl = links[randomIndex];
+                    
+                    // (Opsional) Mengambil kata kunci dari ?q= 
+                    // Baris ini menangkap parameter 'q' jika ada (misal: cake-recipes)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const keyword = urlParams.get('q');
+                    
+                    // Jika Anda ingin menempelkan kata kunci tersebut ke link tujuan (misal untuk tracking UTM), 
+                    // Anda bisa memodifikasi targetUrl di sini. Jika tidak, script tetap melakukan redirect normal.
+
+                    // Eksekusi redirect
+                    window.location.replace(targetUrl);
+                } else {
+                    document.getElementById('status').innerHTML = "<h3>Error: Daftar link kosong.</h3>";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('status').innerHTML = "<h3>Terjadi kesalahan jaringan saat mengambil link.</h3>";
+            }
+        }
+
+        window.onload = randomRedirect;
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .loader-text {
+            color: #555;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="status" class="loader-text">Sedang mencari tujuan...</div>
+</body>
+</html>
